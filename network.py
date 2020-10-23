@@ -3,131 +3,81 @@ import torch.nn as nn
 
 
 class Unet(nn.Module):
-    def __init__(self, batch_size):
+    def __init__(self):
         super(Unet, self).__init__()
 
-        bn = None
-        if batch_size == 1:
-            bn = False  # Instance Normalization
-        else:
-            bn = True  # Batch Normalization
-
-        # [3x256x256] -> [64x128x128]
         self.conv1 = nn.Conv2d(1, 64, 4, 2, 1)
 
-        # -> [128x64x64]
         conv2 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(64, 128, 4, 2, 1)]
-        if bn is True:
-            conv2 += [nn.BatchNorm2d(128)]
-        else:
-            conv2 += [nn.InstanceNorm2d(128)]
+        
+        conv2 += [nn.BatchNorm2d(128)]
         self.conv2 = nn.Sequential(*conv2)
 
-        # -> [256x32x32]
         conv3 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(128, 256, 4, 2, 1)]
-        if bn is True:
-            conv3 += [nn.BatchNorm2d(256)]
-        else:
-            conv3 += [nn.InstanceNorm2d(256)]
+        
+        conv3 += [nn.BatchNorm2d(256)]
         self.conv3 = nn.Sequential(*conv3)
 
-        # -> [512x16x16]
         conv4 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(256, 512, 4, 2, 1)]
-        if bn is True:
-            conv4 += [nn.BatchNorm2d(512)]
-        else:
-            conv4 += [nn.InstanceNorm2d(512)]
+        
+        conv4 += [nn.BatchNorm2d(512)]
         self.conv4 = nn.Sequential(*conv4)
 
-        # -> [512x8x8]
         conv5 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(512, 512, 4, 2, 1)]
-        if bn is True:
-            conv5 += [nn.BatchNorm2d(512)]
-        else:
-            conv5 += [nn.InstanceNorm2d(512)]
+        
+        conv5 += [nn.BatchNorm2d(512)]
         self.conv5 = nn.Sequential(*conv5)
 
-        # -> [512x4x4]
         conv6 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(512, 512, 4, 2, 1)]
-        if bn is True:
-            conv6 += [nn.BatchNorm2d(512)]
-        else:
-            conv6 += [nn.InstanceNorm2d(512)]
+        
+        conv6 += [nn.BatchNorm2d(512)]
         self.conv6 = nn.Sequential(*conv6)
 
-        # -> [512x2x2]
         conv7 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(512, 512, 4, 2, 1)]
-        if bn is True:
-            conv7 += [nn.BatchNorm2d(512)]
-        else:
-            conv7 += [nn.InstanceNorm2d(512)]
+        
+        conv7 += [nn.BatchNorm2d(512)]
         self.conv7 = nn.Sequential(*conv7)
 
-        # -> [512x1x1]
         conv8 = [nn.LeakyReLU(0.2, inplace=True), nn.Conv2d(512, 512, 4, 2, 1)]
-        if bn is True:
-            conv8 += [nn.BatchNorm2d(512)]
-        else:
-            conv8 += [nn.InstanceNorm2d(512)]
+        
+        conv8 += [nn.BatchNorm2d(512)]
         self.conv8 = nn.Sequential(*conv8)
 
-        # -> [512x2x2]
         deconv8 = [nn.ReLU(), nn.ConvTranspose2d(512, 512, 4, 2, 1)]
-        if bn is True:
-            deconv8 += [nn.BatchNorm2d(512), nn.Dropout(0.5)]
-        else:
-            deconv8 += [nn.InstanceNorm2d(512), nn.Dropout(0.5)]
+        
+        deconv8 += [nn.BatchNorm2d(512), nn.Dropout(0.5)]
         self.deconv8 = nn.Sequential(*deconv8)
 
-        # [(512+512)x2x2] -> [512x4x4]
         deconv7 = [nn.ReLU(), nn.ConvTranspose2d(512 * 2, 512, 4, 2, 1)]
-        if bn is True:
-            deconv7 += [nn.BatchNorm2d(512), nn.Dropout(0.5)]
-        else:
-            deconv7 += [nn.InstanceNorm2d(512), nn.Dropout(0.5)]
+        
+        deconv7 += [nn.BatchNorm2d(512), nn.Dropout(0.5)]
         self.deconv7 = nn.Sequential(*deconv7)
 
-        # [(512+512)x4x4] -> [512x8x8]
         deconv6 = [nn.ReLU(), nn.ConvTranspose2d(512 * 2, 512, 4, 2, 1)]
-        if bn is True:
-            deconv6 += [nn.BatchNorm2d(512), nn.Dropout(0.5)]
-        else:
-            deconv6 += [nn.InstanceNorm2d(512), nn.Dropout(0.5)]
+        
+        deconv6 += [nn.BatchNorm2d(512), nn.Dropout(0.5)]
         self.deconv6 = nn.Sequential(*deconv6)
 
-        # [(512+512)x8x8] -> [512x16x16]
         deconv5 = [nn.ReLU(), nn.ConvTranspose2d(512 * 2, 512, 4, 2, 1)]
-        if bn is True:
-            deconv5 += [nn.BatchNorm2d(512)]
-        else:
-            deconv5 += [nn.InstanceNorm2d(512)]
+        
+        deconv5 += [nn.BatchNorm2d(512)]
         self.deconv5 = nn.Sequential(*deconv5)
 
-        # [(512+512)x16x16] -> [256x32x32]
         deconv4 = [nn.ReLU(), nn.ConvTranspose2d(512 * 2, 256, 4, 2, 1)]
-        if bn is True:
-            deconv4 += [nn.BatchNorm2d(256)]
-        else:
-            deconv4 += [nn.InstanceNorm2d(256)]
+        
+        deconv4 += [nn.BatchNorm2d(256)]
         self.deconv4 = nn.Sequential(*deconv4)
 
-        # [(256+256)x32x32] -> [128x64x64]
         deconv3 = [nn.ReLU(), nn.ConvTranspose2d(256 * 2, 128, 4, 2, 1)]
-        if bn is True:
-            deconv3 += [nn.BatchNorm2d(128)]
-        else:
-            deconv3 += [nn.InstanceNorm2d(128)]
+        
+        deconv3 += [nn.BatchNorm2d(128)]
         self.deconv3 = nn.Sequential(*deconv3)
 
-        # [(128+128)x64x64] -> [64x128x128]
         deconv2 = [nn.ReLU(), nn.ConvTranspose2d(128 * 2, 64, 4, 2, 1)]
-        if bn is True:
-            deconv2 += [nn.BatchNorm2d(64)]
-        else:
-            deconv2 += [nn.InstanceNorm2d(64)]
+        
+        deconv2 += [nn.BatchNorm2d(64)]
         self.deconv2 = nn.Sequential(*deconv2)
 
-        # [(64+64)x128x128] -> [3x256x256]
         self.deconv1 = nn.Sequential(
             nn.ReLU(), nn.ConvTranspose2d(64 * 2, 1, 4, 2, 1), nn.Tanh()
         )

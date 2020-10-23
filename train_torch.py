@@ -65,19 +65,18 @@ def train():
     )
 
     # Networks
-    model = Unet(batch_size).to(device=device)
+    model = Unet().to(device=device)
     model = nn.DataParallel(model).to(device=device)
-
-    # checkpoint = torch.load("./checkpoint/model_epoch_100.pth")
-
-    # model.load_state_dict(checkpoint["state_dict"])
 
     # Losses
     criterion = nn.L1Loss().to(device)
 
     # Optimizers
     optimizer = optim.Adam(model.parameters(), lr, [beta1, beta2])
-
+    
+    # Network Load
+    # checkpoint = torch.load("./checkpoint/model_epoch_100.pth")
+    # model.load_state_dict(checkpoint["state_dict"])
     # optimizer.load_state_dict(checkpoint["optimizer_dict"])
 
     for epoch in range(epochs):
