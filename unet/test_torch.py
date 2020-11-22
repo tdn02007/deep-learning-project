@@ -9,7 +9,7 @@ from torch import optim
 from torch.utils.data import DataLoader, random_split
 
 from data_load_torch import DatasetLoader
-from network import Generator
+from network import Unet
 
 input_dir = "../test/gabor_hologram/"
 label_dir = "../test/phase/"
@@ -52,7 +52,7 @@ def train():
     )
 
     # Networks
-    model = Generator(batch_size).to(device=device)
+    model = Unet().to(device=device)
 
     checkpoint = torch.load("./checkpoint/model_epoch_100.pth")
 
@@ -60,34 +60,35 @@ def train():
 
     model.eval()
 
-    for epoch in range(1):
-        train_epoch = epoch
-        print("epoch: ", train_epoch)
+    for i, sample in enumerate(train_loader):
+        input_image = sample["input_image"].to(device=device)
+        label_image = sample["label_image"].to(device=device)
 
-        for sample in train_loader:
-            input_image = sample["input_image"].to(device=device)
-            label_image = sample["label_image"].to(device=device)
+        # discriminator
 
-            # discriminator
+        fake_image = model(input_image)
 
-            fake_image = model(input_image)
-
-            torchvision.utils.save_image(
-                denorm(fake_image),
-                os.path.join(save_path, "Fake image-%d-%d.tif" % (train_epoch + 1, 1),),
-            )
-            torchvision.utils.save_image(
-                denorm(input_image),
-                os.path.join(
-                    save_path, "Input image-%d-%d.tif" % (train_epoch + 1, 1),
-                ),
-            )
-            torchvision.utils.save_image(
-                denorm(label_image),
-                os.path.join(
-                    save_path, "Label image-%d-%d.tif" % (train_epoch + 1, 1),
-                ),
-            )
+        torchvision.utils.save_image(
+            denorm(fake_image),
+            os.path.join(
+                save_path,
+                "Fake image-%d.tif" % (i + 1),
+            ),
+        )
+        torchvision.utils.save_image(
+            denorm(input_image),
+            os.path.join(
+                save_path,
+                "Input image-%d.tif" % (i + 1),
+            ),
+        )
+        torchvision.utils.save_image(
+            denorm(label_image),
+            os.path.join(
+                save_path,
+                "Label image-%d.tif" % (i + 1),
+            ),
+        )
 
 
 if __name__ == "__main__":

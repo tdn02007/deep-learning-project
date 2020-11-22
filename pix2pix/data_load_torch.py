@@ -14,8 +14,8 @@ class DatasetLoader(Dataset):
         self.label_dir = label_dir
         self.image_size = image_size
 
-        self.input_images = os.listdir(input_dir)
-        self.label_images = os.listdir(label_dir)
+        self.input_images = sorted(os.listdir(input_dir))
+        self.label_images = sorted(os.listdir(label_dir))
 
     @classmethod
     def preprocess(cls, pil_img, image_size):
